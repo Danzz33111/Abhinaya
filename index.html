@@ -8,9 +8,6 @@
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Caveat:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
     <style>
       :root {
         --bg-deep: #06101f;
@@ -353,11 +350,6 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
       }
-      .submit-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-      }
       .form-status {
         text-align: center;
         margin-top: 12px;
@@ -439,7 +431,7 @@
       }
       .note-blue {
         background: linear-gradient(145deg, #bae6fd, #7dd3fc);
-        transform: rotate(1.2deg);
+        transform: rotate(-1.2deg);
       }
       .note-green {
         background: linear-gradient(145deg, #bbf7d0, #86efac);
@@ -459,24 +451,6 @@
         color: var(--text-muted);
         padding: 40px;
         font-size: 1.1rem;
-      }
-      .notes-loading {
-        text-align: center;
-        color: var(--accent-soft);
-        padding: 30px;
-      }
-
-      .firebase-warning {
-        max-width: 560px;
-        margin: 0 auto 24px;
-        padding: 16px 20px;
-        background: rgba(251, 191, 36, 0.15);
-        border: 1px solid rgba(251, 191, 36, 0.4);
-        border-radius: 12px;
-        color: #fcd34d;
-        font-size: 0.95rem;
-        text-align: center;
-        display: none;
       }
 
       .lightbox {
@@ -644,12 +618,7 @@
     <section class="notes-section" id="pesan">
       <div class="notes-header">
         <h2>💌 Pesan dari Teman</h2>
-        <p>Tulis pesanmu — semua orang bisa melihatnya secara real-time</p>
-      </div>
-
-      <div class="firebase-warning" id="firebase-warning">
-        ⚠️ Firebase belum dikonfigurasi. Isi config di bagian bawah file
-        index.html agar sticky notes bisa dibagikan ke semua user.
+        <p>Tulis pesanmu di sini</p>
       </div>
 
       <div class="note-form">
@@ -695,7 +664,9 @@
       </div>
 
       <div class="notes-board" id="notes-board">
-        <div class="notes-loading">Memuat pesan...</div>
+        <div class="notes-empty">
+          Belum ada pesan. Jadilah yang pertama menulis! ✨
+        </div>
       </div>
     </section>
 
@@ -723,22 +694,6 @@
     </audio>
 
     <script>
-      // ============================================================
-      //  FIREBASE CONFIG — Abhinaya Kicau
-      // ============================================================
-      const firebaseConfig = {
-        apiKey: "AIzaSyAt3ujaHxN8CWz4KEIbIl29r-gF2rFbtmI",
-        authDomain: "abhinaya-kicau.firebaseapp.com",
-        databaseURL:
-          "https://abhinaya-kicau-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "abhinaya-kicau",
-        storageBucket: "abhinaya-kicau.firebasestorage.app",
-        messagingSenderId: "391734368667",
-        appId: "1:391734368667:web:798bc46c2f86dcf31e293e",
-        measurementId: "G-9R67XT8BHR",
-      };
-      // ============================================================
-
       // ===== Gallery =====
       const gallery = document.getElementById("gallery");
       for (let i = 1; i <= 35; i++) {
@@ -1006,12 +961,11 @@
       animate();
 
       // =====================================================
-      // Sticky Notes — Firebase Realtime Database (shared)
+      // Sticky Notes (localStorage — tersimpan di browser)
       // =====================================================
+      const STORAGE_KEY = "abhinaya_sticky_notes";
       let selectedColor = "yellow";
       const rotations = [-2.5, 1.8, -1.2, 2.2, -1.8, 1.5, -3, 2.8, -0.8, 1.2];
-      let notesRef = null;
-      let firebaseReady = false;
 
       document.querySelectorAll(".color-opt").forEach((el) => {
         el.addEventListener("click", () => {
@@ -1022,6 +976,18 @@
           selectedColor = el.dataset.color;
         });
       });
+
+      function getNotes() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        } catch {
+          return [];
+        }
+      }
+
+      function saveNotes(notes) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+      }
 
       function formatTime(iso) {
         try {
@@ -1049,18 +1015,21 @@
         return div.innerHTML;
       }
 
-      function renderNotes(notes) {
+      function renderNotes() {
+        const notes = getNotes();
         const board = document.getElementById("notes-board");
-        if (!notes || notes.length === 0) {
+        if (!notes.length) {
           board.innerHTML =
             '<div class="notes-empty">Belum ada pesan. Jadilah yang pertama menulis! ✨</div>';
           return;
         }
-        board.innerHTML = notes
+        // Tampilkan yang terbaru di atas
+        const sorted = [...notes].reverse();
+        board.innerHTML = sorted
           .map((n, i) => {
             const rot = rotations[i % rotations.length];
             return `
-          <div class="sticky-note note-${n.color || "yellow"}" style="transform: rotate(${rot}deg)">
+          <div class="sticky-note note-${n.color}" style="transform: rotate(${rot}deg)">
             ${escapeHtml(n.message)}
             <span class="author">— ${escapeHtml(n.author || "Anonim")}</span>
             <span class="time">${formatTime(n.created_at)}</span>
@@ -1070,90 +1039,38 @@
           .join("");
       }
 
-      function initFirebase() {
-        const isPlaceholder =
-          !firebaseConfig.apiKey || firebaseConfig.apiKey.includes("GANTI");
-        if (isPlaceholder) {
-          document.getElementById("firebase-warning").style.display = "block";
-          document.getElementById("notes-board").innerHTML =
-            '<div class="notes-empty">Firebase belum dikonfigurasi.<br>Ikuti petunjuk di file index.html agar sticky notes bisa dibagikan.</div>';
+      document.getElementById("submit-note").addEventListener("click", () => {
+        const author =
+          document.getElementById("note-author").value.trim() || "Anonim";
+        const message = document.getElementById("note-message").value.trim();
+        const status = document.getElementById("form-status");
+
+        if (!message) {
+          status.className = "form-status err";
+          status.textContent = "Pesan tidak boleh kosong ya 😊";
           return;
         }
 
-        try {
-          firebase.initializeApp(firebaseConfig);
-          notesRef = firebase.database().ref("sticky_notes");
-          firebaseReady = true;
-
-          // Real-time listener — semua user langsung update
-          notesRef.orderByChild("created_at").on("value", (snapshot) => {
-            const data = snapshot.val() || {};
-            const notes = Object.keys(data).map((key) => ({
-              id: key,
-              ...data[key],
-            }));
-            // Terbaru di atas
-            notes.sort((a, b) =>
-              (b.created_at || "").localeCompare(a.created_at || ""),
-            );
-            renderNotes(notes);
-          });
-        } catch (e) {
-          console.error(e);
-          document.getElementById("firebase-warning").style.display = "block";
-          document.getElementById("notes-board").innerHTML =
-            '<div class="notes-empty">Gagal terhubung ke Firebase. Cek config-nya.</div>';
-        }
-      }
-
-      document
-        .getElementById("submit-note")
-        .addEventListener("click", async () => {
-          const author =
-            document.getElementById("note-author").value.trim() || "Anonim";
-          const message = document.getElementById("note-message").value.trim();
-          const status = document.getElementById("form-status");
-          const btn = document.getElementById("submit-note");
-
-          if (!message) {
-            status.className = "form-status err";
-            status.textContent = "Pesan tidak boleh kosong ya 😊";
-            return;
-          }
-          if (!firebaseReady || !notesRef) {
-            status.className = "form-status err";
-            status.textContent = "Firebase belum siap. Isi config dulu.";
-            return;
-          }
-
-          btn.disabled = true;
-          status.className = "form-status";
-          status.textContent = "Menyimpan...";
-
-          try {
-            await notesRef.push({
-              author: author.slice(0, 40),
-              message: message.slice(0, 280),
-              color: selectedColor,
-              created_at: new Date().toISOString(),
-            });
-            document.getElementById("note-message").value = "";
-            status.className = "form-status ok";
-            status.textContent =
-              "Sticky note berhasil ditempel! Semua user bisa melihatnya 📌";
-            setTimeout(() => {
-              status.textContent = "";
-            }, 3000);
-          } catch (e) {
-            console.error(e);
-            status.className = "form-status err";
-            status.textContent =
-              "Gagal menyimpan. Cek koneksi / aturan Firebase.";
-          }
-          btn.disabled = false;
+        const notes = getNotes();
+        notes.push({
+          id: Date.now(),
+          author: author.slice(0, 40),
+          message: message.slice(0, 280),
+          color: selectedColor,
+          created_at: new Date().toISOString(),
         });
+        saveNotes(notes);
+        document.getElementById("note-message").value = "";
+        status.className = "form-status ok";
+        status.textContent = "Sticky note berhasil ditempel! 📌";
+        renderNotes();
+        setTimeout(() => {
+          status.textContent = "";
+        }, 3000);
+      });
 
-      initFirebase();
+      // Mulai kosong — hanya isi yang ditulis user
+      renderNotes();
     </script>
   </body>
 </html>
