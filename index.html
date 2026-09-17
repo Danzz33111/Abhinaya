@@ -8,7 +8,6 @@
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Caveat:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
     <style>
@@ -22,14 +21,8 @@
         --glass: rgba(15, 40, 75, 0.55);
         --border: rgba(59, 130, 246, 0.35);
       }
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      html {
-        scroll-behavior: smooth;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
       body {
         min-height: 100vh;
         font-family: "Outfit", system-ui, sans-serif;
@@ -39,804 +32,393 @@
         position: relative;
       }
       #stars-canvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
+        position: fixed; inset: 0; z-index: 0; pointer-events: none;
       }
-
       #overlay {
-        position: fixed;
-        inset: 0;
+        position: fixed; inset: 0;
         background: rgba(6, 16, 31, 0.97);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        z-index: 99999;
-        cursor: pointer;
-        text-align: center;
-        padding: 24px;
-        transition: opacity 1s ease;
+        display: flex; justify-content: center; align-items: center;
+        flex-direction: column; z-index: 99999; cursor: pointer;
+        text-align: center; padding: 24px; transition: opacity 1s ease;
       }
-      #overlay.fade-out {
-        opacity: 0;
-        pointer-events: none;
-      }
+      #overlay.fade-out { opacity: 0; pointer-events: none; }
       #overlay h2 {
-        font-size: clamp(2.2rem, 6vw, 3.8rem);
-        font-weight: 700;
+        font-size: clamp(2.2rem, 6vw, 3.8rem); font-weight: 700;
         color: var(--accent-soft);
-        text-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
-        margin-bottom: 16px;
+        text-shadow: 0 0 40px rgba(59, 130, 246, 0.6); margin-bottom: 16px;
       }
       #overlay p {
-        font-size: 1.15rem;
-        color: var(--text-muted);
-        line-height: 1.6;
-        max-width: 420px;
+        font-size: 1.15rem; color: var(--text-muted); line-height: 1.6; max-width: 420px;
       }
       #overlay .hint {
-        margin-top: 28px;
-        font-size: 0.95rem;
-        color: var(--accent);
+        margin-top: 28px; font-size: 0.95rem; color: var(--accent);
         animation: pulse 2s ease-in-out infinite;
       }
       @keyframes pulse {
-        0%,
-        100% {
-          opacity: 0.6;
-        }
-        50% {
-          opacity: 1;
-        }
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
       }
-
       header {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        padding: 70px 20px 20px;
+        position: relative; z-index: 2; text-align: center; padding: 70px 20px 20px;
       }
       header h1 {
-        font-size: clamp(2.6rem, 7vw, 4.2rem);
-        font-weight: 700;
+        font-size: clamp(2.6rem, 7vw, 4.2rem); font-weight: 700;
         background: linear-gradient(135deg, #60a5fa, #93c5fd, #3b82f6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         background-clip: text;
         filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.45));
         animation: title-glow 5s ease-in-out infinite alternate;
       }
       @keyframes title-glow {
-        from {
-          filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.4));
-        }
-        to {
-          filter: drop-shadow(0 0 45px rgba(147, 197, 253, 0.7));
-        }
+        from { filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.4)); }
+        to { filter: drop-shadow(0 0 45px rgba(147, 197, 253, 0.7)); }
       }
       header .subtitle {
-        margin-top: 10px;
-        font-size: 1.1rem;
-        color: var(--text-muted);
-        letter-spacing: 2px;
-        text-transform: uppercase;
+        margin-top: 10px; font-size: 1.1rem; color: var(--text-muted);
+        letter-spacing: 2px; text-transform: uppercase;
       }
-
       .filters {
-        display: flex;
-        justify-content: center;
-        gap: 14px;
-        padding: 28px 20px 40px;
-        position: relative;
-        z-index: 3;
-        flex-wrap: wrap;
-        transition: opacity 0.4s ease;
+        display: flex; justify-content: center; gap: 14px;
+        padding: 28px 20px 40px; position: relative; z-index: 3;
+        flex-wrap: wrap; transition: opacity 0.4s ease;
       }
-      .filters.hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
+      .filters.hidden { opacity: 0; pointer-events: none; }
       .filter-btn {
-        padding: 12px 30px;
-        border: 1.5px solid var(--border);
-        background: var(--glass);
-        color: var(--accent-soft);
-        border-radius: 50px;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
-        backdrop-filter: blur(14px);
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+        padding: 12px 30px; border: 1.5px solid var(--border);
+        background: var(--glass); color: var(--accent-soft);
+        border-radius: 50px; font-size: 1rem; font-weight: 500;
+        cursor: pointer; transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+        backdrop-filter: blur(14px); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
         font-family: inherit;
       }
-      .filter-btn:hover,
-      .filter-btn.active {
-        background: rgba(59, 130, 246, 0.25);
-        border-color: var(--accent);
-        color: #fff;
-        transform: translateY(-4px);
+      .filter-btn:hover, .filter-btn.active {
+        background: rgba(59, 130, 246, 0.25); border-color: var(--accent);
+        color: #fff; transform: translateY(-4px);
         box-shadow: 0 0 28px rgba(59, 130, 246, 0.55);
       }
-
       .gallery {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 32px;
-        padding: 0 5% 80px;
-        max-width: 1500px;
-        margin: 0 auto;
-        position: relative;
-        z-index: 2;
+        gap: 32px; padding: 0 5% 80px; max-width: 1500px;
+        margin: 0 auto; position: relative; z-index: 2;
       }
       .photo-card {
-        position: relative;
-        border-radius: 22px;
-        overflow: hidden;
-        cursor: pointer;
-        transition: all 0.65s cubic-bezier(0.23, 1, 0.32, 1);
-        background: var(--bg-card);
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
-        height: 380px;
-        border: 1px solid rgba(59, 130, 246, 0.15);
+        position: relative; border-radius: 22px; overflow: hidden;
+        cursor: pointer; transition: all 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+        background: var(--bg-card); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+        height: 380px; border: 1px solid rgba(59, 130, 246, 0.15);
       }
-      .photo-card.hidden {
-        display: none !important;
-      }
+      .photo-card.hidden { display: none !important; }
       .photo-card:hover {
         transform: translateY(-16px) scale(1.03);
         box-shadow: 0 30px 60px rgba(59, 130, 246, 0.35);
         border-color: rgba(59, 130, 246, 0.4);
       }
-      .photo-card img,
-      .photo-card video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 1.1s ease;
+      .photo-card img, .photo-card video {
+        width: 100%; height: 100%; object-fit: cover; transition: transform 1.1s ease;
       }
-      .photo-card:hover img,
-      .photo-card:hover video {
-        transform: scale(1.12);
-      }
+      .photo-card:hover img, .photo-card:hover video { transform: scale(1.12); }
       .media-type {
-        position: absolute;
-        top: 14px;
-        left: 14px;
-        background: rgba(6, 16, 31, 0.8);
-        color: var(--accent-soft);
-        padding: 5px 14px;
-        border-radius: 30px;
-        font-size: 0.85rem;
-        z-index: 2;
-        backdrop-filter: blur(8px);
+        position: absolute; top: 14px; left: 14px;
+        background: rgba(6, 16, 31, 0.8); color: var(--accent-soft);
+        padding: 5px 14px; border-radius: 30px; font-size: 0.85rem;
+        z-index: 2; backdrop-filter: blur(8px);
         border: 1px solid rgba(59, 130, 246, 0.3);
       }
       .caption {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
+        position: absolute; bottom: 0; width: 100%;
         padding: 28px 16px 20px;
         background: linear-gradient(to top, rgba(6, 16, 31, 0.95), transparent);
-        text-align: center;
-        font-size: 1.05rem;
-        color: var(--text);
+        text-align: center; font-size: 1.05rem; color: var(--text);
       }
-
       .notes-section {
-        position: relative;
-        z-index: 2;
-        max-width: 1400px;
-        margin: 0 auto 100px;
-        padding: 0 5%;
+        position: relative; z-index: 2; max-width: 1400px;
+        margin: 0 auto 100px; padding: 0 5%;
       }
-      .notes-header {
-        text-align: center;
-        margin-bottom: 36px;
-      }
+      .notes-header { text-align: center; margin-bottom: 36px; }
       .notes-header h2 {
-        font-size: clamp(1.8rem, 4vw, 2.6rem);
-        font-weight: 600;
-        color: var(--accent-soft);
-        margin-bottom: 8px;
+        font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 600;
+        color: var(--accent-soft); margin-bottom: 8px;
       }
-      .notes-header p {
-        color: var(--text-muted);
-        font-size: 1.05rem;
-      }
-
+      .notes-header p { color: var(--text-muted); font-size: 1.05rem; }
       .note-form {
-        background: var(--glass);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 28px 24px;
-        max-width: 560px;
-        margin: 0 auto 48px;
-        backdrop-filter: blur(16px);
+        background: var(--glass); border: 1px solid var(--border);
+        border-radius: 20px; padding: 28px 24px; max-width: 560px;
+        margin: 0 auto 48px; backdrop-filter: blur(16px);
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
       }
       .note-form h3 {
-        font-size: 1.2rem;
-        color: var(--accent-soft);
-        margin-bottom: 18px;
-        text-align: center;
+        font-size: 1.2rem; color: var(--accent-soft);
+        margin-bottom: 18px; text-align: center;
       }
       .note-form label {
-        display: block;
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        margin-bottom: 6px;
+        display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;
       }
-      .note-form input[type="text"],
-      .note-form textarea {
-        width: 100%;
-        padding: 12px 16px;
-        border-radius: 12px;
+      .note-form input[type="text"], .note-form textarea {
+        width: 100%; padding: 12px 16px; border-radius: 12px;
         border: 1.5px solid rgba(59, 130, 246, 0.3);
-        background: rgba(6, 16, 31, 0.7);
-        color: var(--text);
-        font-family: inherit;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.25s;
-        margin-bottom: 16px;
-        resize: vertical;
+        background: rgba(6, 16, 31, 0.7); color: var(--text);
+        font-family: inherit; font-size: 1rem; outline: none;
+        transition: border-color 0.25s; margin-bottom: 16px; resize: vertical;
       }
-      .note-form input:focus,
-      .note-form textarea:focus {
-        border-color: var(--accent);
-      }
-      .note-form textarea {
-        min-height: 90px;
-      }
+      .note-form input:focus, .note-form textarea:focus { border-color: var(--accent); }
+      .note-form textarea { min-height: 90px; }
       .color-picker {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-        justify-content: center;
+        display: flex; gap: 10px; flex-wrap: wrap;
+        margin-bottom: 20px; justify-content: center;
       }
       .color-opt {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        cursor: pointer;
+        width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
         border: 3px solid transparent;
-        transition:
-          transform 0.2s,
-          border-color 0.2s;
+        transition: transform 0.2s, border-color 0.2s;
       }
-      .color-opt:hover {
-        transform: scale(1.15);
-      }
-      .color-opt.selected {
-        border-color: #fff;
-        transform: scale(1.15);
-      }
-      .color-opt.yellow {
-        background: #fde047;
-      }
-      .color-opt.pink {
-        background: #f9a8d4;
-      }
-      .color-opt.blue {
-        background: #7dd3fc;
-      }
-      .color-opt.green {
-        background: #86efac;
-      }
-      .color-opt.orange {
-        background: #fdba74;
-      }
-      .color-opt.lavender {
-        background: #d8b4fe;
-      }
+      .color-opt:hover { transform: scale(1.15); }
+      .color-opt.selected { border-color: #fff; transform: scale(1.15); }
+      .color-opt.yellow { background: #fde047; }
+      .color-opt.pink { background: #f9a8d4; }
+      .color-opt.blue { background: #7dd3fc; }
+      .color-opt.green { background: #86efac; }
+      .color-opt.orange { background: #fdba74; }
+      .color-opt.lavender { background: #d8b4fe; }
       .submit-btn {
-        display: block;
-        width: 100%;
-        padding: 14px;
-        border: none;
+        display: block; width: 100%; padding: 14px; border: none;
         border-radius: 50px;
         background: linear-gradient(135deg, #3b82f6, #60a5fa);
-        color: #fff;
-        font-size: 1.05rem;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: inherit;
-        transition:
-          transform 0.25s,
-          box-shadow 0.25s;
+        color: #fff; font-size: 1.05rem; font-weight: 600;
+        cursor: pointer; font-family: inherit;
+        transition: transform 0.25s, box-shadow 0.25s;
       }
       .submit-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
       }
-      .submit-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-      }
+      .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
       .form-status {
-        text-align: center;
-        margin-top: 12px;
-        font-size: 0.9rem;
-        min-height: 1.2em;
+        text-align: center; margin-top: 12px; font-size: 0.9rem; min-height: 1.2em;
       }
-      .form-status.ok {
-        color: #86efac;
-      }
-      .form-status.err {
-        color: #fca5a5;
-      }
-
+      .form-status.ok { color: #86efac; }
+      .form-status.err { color: #fca5a5; }
       .notes-board {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 28px;
-        perspective: 1000px;
+        display: flex; flex-wrap: wrap; justify-content: center;
+        gap: 28px; perspective: 1000px;
       }
       .sticky-note {
-        width: 240px;
-        min-height: 200px;
-        padding: 22px 20px 28px;
+        width: 240px; min-height: 200px; padding: 22px 20px 28px;
         border-radius: 4px 4px 8px 8px;
-        box-shadow:
-          0 6px 18px rgba(0, 0, 0, 0.35),
-          inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
         position: relative;
-        transition:
-          transform 0.35s ease,
-          box-shadow 0.35s ease;
-        font-family: "Caveat", cursive;
-        font-size: 1.35rem;
-        line-height: 1.45;
-        color: #1e293b;
-        transform-origin: center top;
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        font-family: "Caveat", cursive; font-size: 1.35rem;
+        line-height: 1.45; color: #1e293b; transform-origin: center top;
+        word-break: break-word;
       }
       .sticky-note::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 14px;
+        content: ""; position: absolute; top: 0; left: 50%;
+        transform: translateX(-50%); width: 60px; height: 14px;
         background: rgba(255, 255, 255, 0.25);
-        border-radius: 0 0 6px 6px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        border-radius: 0 0 6px 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
       }
       .sticky-note:hover {
         transform: rotate(0deg) translateY(-10px) scale(1.05) !important;
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
-        z-index: 10;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4); z-index: 10;
       }
       .sticky-note .author {
-        display: block;
-        margin-top: 16px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        opacity: 0.8;
-        text-align: right;
+        display: block; margin-top: 16px; font-size: 1.1rem;
+        font-weight: 600; opacity: 0.8; text-align: right;
       }
       .sticky-note .time {
-        display: block;
-        font-size: 0.85rem;
-        opacity: 0.55;
-        text-align: right;
-        margin-top: 4px;
-        font-family: "Outfit", sans-serif;
+        display: block; font-size: 0.85rem; opacity: 0.55;
+        text-align: right; margin-top: 4px; font-family: "Outfit", sans-serif;
       }
-      .note-yellow {
-        background: linear-gradient(145deg, #fef08a, #fde047);
-        transform: rotate(-2.5deg);
-      }
-      .note-pink {
-        background: linear-gradient(145deg, #fbcfe8, #f9a8d4);
-        transform: rotate(1.8deg);
-      }
-      .note-blue {
-        background: linear-gradient(145deg, #bae6fd, #7dd3fc);
-        transform: rotate(1.2deg);
-      }
-      .note-green {
-        background: linear-gradient(145deg, #bbf7d0, #86efac);
-        transform: rotate(2.2deg);
-      }
-      .note-orange {
-        background: linear-gradient(145deg, #fed7aa, #fdba74);
-        transform: rotate(-1.8deg);
-      }
-      .note-lavender {
-        background: linear-gradient(145deg, #e9d5ff, #d8b4fe);
-        transform: rotate(1.5deg);
-      }
-
+      .note-yellow { background: linear-gradient(145deg, #fef08a, #fde047); transform: rotate(-2.5deg); }
+      .note-pink { background: linear-gradient(145deg, #fbcfe8, #f9a8d4); transform: rotate(1.8deg); }
+      .note-blue { background: linear-gradient(145deg, #bae6fd, #7dd3fc); transform: rotate(1.2deg); }
+      .note-green { background: linear-gradient(145deg, #bbf7d0, #86efac); transform: rotate(2.2deg); }
+      .note-orange { background: linear-gradient(145deg, #fed7aa, #fdba74); transform: rotate(-1.8deg); }
+      .note-lavender { background: linear-gradient(145deg, #e9d5ff, #d8b4fe); transform: rotate(1.5deg); }
       .notes-empty {
-        text-align: center;
-        color: var(--text-muted);
-        padding: 40px;
-        font-size: 1.1rem;
+        text-align: center; color: var(--text-muted); padding: 40px; font-size: 1.1rem;
       }
       .notes-loading {
-        text-align: center;
-        color: var(--accent-soft);
-        padding: 30px;
+        text-align: center; color: var(--accent-soft); padding: 30px;
       }
-
       .firebase-warning {
-        max-width: 560px;
-        margin: 0 auto 24px;
-        padding: 16px 20px;
+        max-width: 560px; margin: 0 auto 24px; padding: 16px 20px;
         background: rgba(251, 191, 36, 0.15);
         border: 1px solid rgba(251, 191, 36, 0.4);
-        border-radius: 12px;
-        color: #fcd34d;
-        font-size: 0.95rem;
-        text-align: center;
-        display: none;
+        border-radius: 12px; color: #fcd34d; font-size: 0.95rem;
+        text-align: center; display: none;
       }
-
       .lightbox {
-        opacity: 0;
-        visibility: hidden;
-        position: fixed;
-        inset: 0;
+        opacity: 0; visibility: hidden; position: fixed; inset: 0;
         background: rgba(4, 10, 22, 0.97);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        transition: all 0.4s ease;
+        display: flex; flex-direction: column; justify-content: center;
+        align-items: center; z-index: 9999; transition: all 0.4s ease;
         padding: 24px 16px;
       }
-      .lightbox.active {
-        opacity: 1;
-        visibility: visible;
-      }
+      .lightbox.active { opacity: 1; visibility: visible; }
       .lightbox-controls {
-        position: absolute;
-        top: 20px;
-        right: 28px;
-        display: flex;
-        gap: 18px;
-        z-index: 12000;
+        position: absolute; top: 20px; right: 28px;
+        display: flex; gap: 18px; z-index: 12000;
       }
-      .minimize-btn,
-      .close-btn,
-      .volume-btn {
-        font-size: 36px;
-        color: var(--accent-soft);
-        cursor: pointer;
+      .minimize-btn, .close-btn, .volume-btn {
+        font-size: 36px; color: var(--accent-soft); cursor: pointer;
         transition: all 0.3s ease;
         text-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
-        line-height: 1;
-        user-select: none;
+        line-height: 1; user-select: none;
       }
-      .minimize-btn:hover,
-      .close-btn:hover,
-      .volume-btn:hover {
-        transform: scale(1.2);
-        color: #fff;
+      .minimize-btn:hover, .close-btn:hover, .volume-btn:hover {
+        transform: scale(1.2); color: #fff;
       }
       .media-container {
-        position: relative;
-        max-width: 92vw;
-        max-height: 75vh;
-        border-radius: 18px;
-        overflow: hidden;
+        position: relative; max-width: 92vw; max-height: 75vh;
+        border-radius: 18px; overflow: hidden;
         box-shadow: 0 0 60px rgba(59, 130, 246, 0.45);
         border: 1px solid rgba(59, 130, 246, 0.25);
       }
-      .lightbox img,
-      .lightbox video {
-        max-width: 100%;
-        max-height: 75vh;
-        border-radius: 18px;
-        object-fit: contain;
-        display: block;
+      .lightbox img, .lightbox video {
+        max-width: 100%; max-height: 75vh; border-radius: 18px;
+        object-fit: contain; display: block;
       }
       .lightbox-caption {
-        font-size: 1.25rem;
-        color: var(--accent-soft);
-        text-align: center;
-        margin-top: 18px;
-        max-width: 80vw;
+        font-size: 1.25rem; color: var(--accent-soft);
+        text-align: center; margin-top: 18px; max-width: 80vw;
       }
       .lightbox-nav {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 18px;
-        margin-top: 22px;
-        z-index: 12000;
-        flex-wrap: wrap;
+        display: flex; justify-content: center; align-items: center;
+        gap: 18px; margin-top: 22px; z-index: 12000; flex-wrap: wrap;
       }
       .lightbox-nav button {
-        background: rgba(13, 31, 58, 0.85);
-        border: 1.5px solid var(--accent);
-        color: var(--accent-soft);
-        font-size: 28px;
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-family: inherit;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        background: rgba(13, 31, 58, 0.85); border: 1.5px solid var(--accent);
+        color: var(--accent-soft); font-size: 28px; width: 58px; height: 58px;
+        border-radius: 50%; cursor: pointer; transition: all 0.3s ease;
+        font-family: inherit; display: flex; align-items: center; justify-content: center;
       }
       .lightbox-nav button:hover {
-        background: rgba(59, 130, 246, 0.35);
-        color: #fff;
-        transform: scale(1.08);
+        background: rgba(59, 130, 246, 0.35); color: #fff; transform: scale(1.08);
       }
       #auto-slide-btn {
-        background: rgba(13, 31, 58, 0.85);
-        border: 1.5px solid var(--accent);
-        color: var(--accent-soft);
-        font-size: 14px;
-        padding: 12px 26px;
-        border-radius: 50px;
-        cursor: pointer;
-        font-weight: 500;
-        min-width: 160px;
-        font-family: inherit;
-        transition: all 0.3s ease;
+        background: rgba(13, 31, 58, 0.85); border: 1.5px solid var(--accent);
+        color: var(--accent-soft); font-size: 14px; padding: 12px 26px;
+        border-radius: 50px; cursor: pointer; font-weight: 500;
+        min-width: 160px; font-family: inherit; transition: all 0.3s ease;
       }
-      #auto-slide-btn:hover,
-      #auto-slide-btn.active {
-        background: var(--accent);
-        color: #fff;
+      #auto-slide-btn:hover, #auto-slide-btn.active {
+        background: var(--accent); color: #fff;
       }
 
-      /* ===== Mini Music Player (pojok kanan bawah) ===== */
+      /* Mini Music Player */
       #mini-player {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 9000;
-        width: 280px;
-        background: rgba(10, 25, 50, 0.92);
-        border: 1px solid rgba(59, 130, 246, 0.4);
-        border-radius: 16px;
-        backdrop-filter: blur(18px);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        overflow: hidden;
-        transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+        position: fixed; bottom: 20px; right: 20px; z-index: 9000;
+        width: 280px; background: rgba(10, 25, 50, 0.92);
+        border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 16px;
+        backdrop-filter: blur(18px); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        overflow: hidden; transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
         font-family: "Outfit", sans-serif;
       }
       #mini-player.collapsed {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
+        width: 56px; height: 56px; border-radius: 50%;
       }
       #mini-player.collapsed .player-content {
-        opacity: 0;
-        pointer-events: none;
-        height: 0;
-        padding: 0;
+        opacity: 0; pointer-events: none; height: 0; padding: 0;
       }
       #mini-player.collapsed .player-toggle {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
+        width: 56px; height: 56px; border-radius: 50%;
       }
-
       .player-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 42px;
-        background: rgba(59, 130, 246, 0.2);
-        border: none;
-        color: var(--accent-soft);
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: background 0.25s;
+        display: flex; align-items: center; justify-content: center;
+        width: 100%; height: 42px; background: rgba(59, 130, 246, 0.2);
+        border: none; color: var(--accent-soft); font-size: 1.1rem;
+        cursor: pointer; transition: background 0.25s;
       }
-      .player-toggle:hover {
-        background: rgba(59, 130, 246, 0.35);
-      }
-
+      .player-toggle:hover { background: rgba(59, 130, 246, 0.35); }
       .player-content {
         padding: 14px 16px 16px;
-        transition:
-          opacity 0.25s,
-          height 0.3s;
+        transition: opacity 0.25s, height 0.3s;
       }
-
       .now-playing {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 12px;
+        display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
       }
       .now-playing .disc {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
+        width: 42px; height: 42px; border-radius: 50%;
         background: linear-gradient(135deg, #3b82f6, #60a5fa);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
         box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
-        animation: spin 8s linear infinite;
-        animation-play-state: paused;
+        animation: spin 8s linear infinite; animation-play-state: paused;
       }
-      #mini-player.playing .disc {
-        animation-play-state: running;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      .song-info {
-        overflow: hidden;
-        flex: 1;
-        min-width: 0;
-      }
+      #mini-player.playing .disc { animation-play-state: running; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .song-info { overflow: hidden; flex: 1; min-width: 0; }
       .song-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #fff;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 0.95rem; font-weight: 600; color: #fff;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
       .song-artist {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 0.78rem; color: var(--text-muted);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
-
       .player-controls {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 14px;
-        margin-bottom: 12px;
+        display: flex; align-items: center; justify-content: center;
+        gap: 14px; margin-bottom: 12px;
       }
       .player-controls button {
-        background: transparent;
-        border: none;
-        color: var(--accent-soft);
-        font-size: 1.25rem;
-        cursor: pointer;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
+        background: transparent; border: none; color: var(--accent-soft);
+        font-size: 1.25rem; cursor: pointer; width: 36px; height: 36px;
+        border-radius: 50%; display: flex; align-items: center;
+        justify-content: center; transition: all 0.2s;
       }
       .player-controls button:hover {
-        background: rgba(59, 130, 246, 0.25);
-        color: #fff;
-        transform: scale(1.1);
+        background: rgba(59, 130, 246, 0.25); color: #fff; transform: scale(1.1);
       }
       .player-controls .play-btn {
-        font-size: 1.5rem;
-        background: rgba(59, 130, 246, 0.3);
+        font-size: 1.5rem; background: rgba(59, 130, 246, 0.3);
       }
-
       .progress-bar {
-        height: 4px;
-        background: rgba(255, 255, 255, 0.12);
-        border-radius: 2px;
-        overflow: hidden;
-        margin-bottom: 10px;
-        cursor: pointer;
+        height: 4px; background: rgba(255, 255, 255, 0.12);
+        border-radius: 2px; overflow: hidden; margin-bottom: 10px; cursor: pointer;
       }
       .progress-fill {
-        height: 100%;
-        width: 0%;
+        height: 100%; width: 0%;
         background: linear-gradient(90deg, #3b82f6, #60a5fa);
-        border-radius: 2px;
-        transition: width 0.15s linear;
+        border-radius: 2px; transition: width 0.15s linear;
       }
-
       .playlist-toggle {
-        width: 100%;
-        padding: 8px;
-        background: rgba(59, 130, 246, 0.12);
-        border: 1px solid rgba(59, 130, 246, 0.25);
-        border-radius: 10px;
-        color: var(--accent-soft);
-        font-size: 0.85rem;
-        cursor: pointer;
-        font-family: inherit;
-        transition: background 0.2s;
+        width: 100%; padding: 8px; background: rgba(59, 130, 246, 0.12);
+        border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px;
+        color: var(--accent-soft); font-size: 0.85rem; cursor: pointer;
+        font-family: inherit; transition: background 0.2s;
       }
-      .playlist-toggle:hover {
-        background: rgba(59, 130, 246, 0.25);
-      }
-
+      .playlist-toggle:hover { background: rgba(59, 130, 246, 0.25); }
       .playlist-list {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.35s ease;
-        margin-top: 0;
+        max-height: 0; overflow: hidden; transition: max-height 0.35s ease; margin-top: 0;
       }
       .playlist-list.open {
-        max-height: 220px;
-        margin-top: 10px;
-        overflow-y: auto;
+        max-height: 220px; margin-top: 10px; overflow-y: auto;
       }
       .playlist-item {
-        padding: 10px 12px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        padding: 10px 12px; border-radius: 10px; cursor: pointer;
+        font-size: 0.85rem; color: var(--text-muted); transition: all 0.2s;
+        display: flex; align-items: center; gap: 8px;
       }
-      .playlist-item:hover {
-        background: rgba(59, 130, 246, 0.15);
-        color: #fff;
-      }
+      .playlist-item:hover { background: rgba(59, 130, 246, 0.15); color: #fff; }
       .playlist-item.active {
-        background: rgba(59, 130, 246, 0.3);
-        color: #fff;
-        font-weight: 500;
+        background: rgba(59, 130, 246, 0.3); color: #fff; font-weight: 500;
       }
-      .playlist-item .num {
-        font-size: 0.75rem;
-        opacity: 0.6;
-        min-width: 18px;
-      }
-
-      /* Scrollbar playlist */
-      .playlist-list::-webkit-scrollbar {
-        width: 4px;
-      }
+      .playlist-item .num { font-size: 0.75rem; opacity: 0.6; min-width: 18px; }
+      .playlist-list::-webkit-scrollbar { width: 4px; }
       .playlist-list::-webkit-scrollbar-thumb {
-        background: rgba(59, 130, 246, 0.4);
-        border-radius: 2px;
+        background: rgba(59, 130, 246, 0.4); border-radius: 2px;
       }
 
       @media (max-width: 640px) {
-        .gallery {
-          grid-template-columns: 1fr;
-          gap: 24px;
-          padding: 0 4% 60px;
-        }
-        .photo-card {
-          height: 320px;
-        }
-        .sticky-note {
-          width: 100%;
-          max-width: 280px;
-        }
-        .notes-board {
-          gap: 20px;
-        }
-        .note-form {
-          padding: 20px 16px;
-        }
-        #mini-player {
-          bottom: 12px;
-          right: 12px;
-          width: 260px;
-        }
-        #mini-player.collapsed {
-          width: 50px;
-          height: 50px;
-        }
+        .gallery { grid-template-columns: 1fr; gap: 24px; padding: 0 4% 60px; }
+        .photo-card { height: 320px; }
+        .sticky-note { width: 100%; max-width: 280px; }
+        .notes-board { gap: 20px; }
+        .note-form { padding: 20px 16px; }
+        #mini-player { bottom: 12px; right: 12px; width: 260px; }
+        #mini-player.collapsed { width: 50px; height: 50px; }
       }
     </style>
   </head>
@@ -846,8 +428,8 @@
     <div id="overlay">
       <h2>Our Memory</h2>
       <p>
-        Klik atau sentuh layar untuk memutar lagu<br />dan melihat kenangan
-        Abhinaya KICAU kita semua
+        Klik atau sentuh layar untuk memutar lagu<br />
+        dan melihat kenangan Abhinaya KICAU kita semua
       </p>
       <div class="hint">✦ Sentuh untuk memulai ✦</div>
     </div>
@@ -879,41 +461,19 @@
       <div class="note-form">
         <h3>Tulis Sticky Note</h3>
         <label for="note-author">Nama</label>
-        <input
-          type="text"
-          id="note-author"
-          placeholder="Siapa namamu?"
-          maxlength="40"
-        />
+        <input type="text" id="note-author" placeholder="Siapa namamu?" maxlength="40" />
         <label for="note-message">Pesan</label>
-        <textarea
-          id="note-message"
-          placeholder="Tulis kenangan atau pesanmu di sini..."
-        ></textarea>
+        <textarea id="note-message" placeholder="Tulis kenangan atau pesanmu di sini..."></textarea>
         <label>Pilih warna</label>
         <div class="color-picker" id="color-picker">
-          <div
-            class="color-opt yellow selected"
-            data-color="yellow"
-            title="Kuning"
-          ></div>
+          <div class="color-opt yellow selected" data-color="yellow" title="Kuning"></div>
           <div class="color-opt pink" data-color="pink" title="Pink"></div>
           <div class="color-opt blue" data-color="blue" title="Biru"></div>
           <div class="color-opt green" data-color="green" title="Hijau"></div>
-          <div
-            class="color-opt orange"
-            data-color="orange"
-            title="Oranye"
-          ></div>
-          <div
-            class="color-opt lavender"
-            data-color="lavender"
-            title="Lavender"
-          ></div>
+          <div class="color-opt orange" data-color="orange" title="Oranye"></div>
+          <div class="color-opt lavender" data-color="lavender" title="Lavender"></div>
         </div>
-        <button class="submit-btn" id="submit-note">
-          Tempelkan Sticky Note 📌
-        </button>
+        <button class="submit-btn" id="submit-note">Tempelkan Sticky Note 📌</button>
         <div class="form-status" id="form-status"></div>
       </div>
 
@@ -924,9 +484,7 @@
 
     <div class="lightbox" id="lightbox">
       <div class="lightbox-controls">
-        <span class="volume-btn" id="volume-btn" onclick="toggleVolume()"
-          >🔊</span
-        >
+        <span class="volume-btn" id="volume-btn" onclick="toggleVolume()">🔊</span>
         <span class="minimize-btn" onclick="toggleMinimize()">−</span>
         <span class="close-btn" onclick="closeLightbox()">✕</span>
       </div>
@@ -934,22 +492,14 @@
       <div class="lightbox-caption" id="lightbox-caption"></div>
       <div class="lightbox-nav">
         <button onclick="goToPrev()">❮</button>
-        <button id="auto-slide-btn" onclick="toggleAutoSlide()">
-          Auto Slide OFF
-        </button>
+        <button id="auto-slide-btn" onclick="toggleAutoSlide()">Auto Slide OFF</button>
         <button onclick="goToNext()">❯</button>
       </div>
     </div>
 
     <!-- Mini Music Player -->
     <div id="mini-player">
-      <button
-        class="player-toggle"
-        id="player-toggle"
-        title="Tutup / Buka player"
-      >
-        🎵
-      </button>
+      <button class="player-toggle" id="player-toggle" title="Tutup / Buka player">🎵</button>
       <div class="player-content">
         <div class="now-playing">
           <div class="disc">💿</div>
@@ -966,9 +516,7 @@
           <button class="play-btn" id="play-btn" title="Play / Pause">▶</button>
           <button id="next-btn" title="Berikutnya">⏭</button>
         </div>
-        <button class="playlist-toggle" id="playlist-toggle">
-          📋 Daftar Lagu
-        </button>
+        <button class="playlist-toggle" id="playlist-toggle">📋 Daftar Lagu</button>
         <div class="playlist-list" id="playlist-list"></div>
       </div>
     </div>
@@ -977,23 +525,22 @@
 
     <script>
       // ============================================================
-      //  FIREBASE CONFIG — Abhinaya Kicau
+      //  FIREBASE CONFIG
       // ============================================================
       const firebaseConfig = {
         apiKey: "AIzaSyAt3ujaHxN8CWz4KEIbIl29r-gF2rFbtmI",
         authDomain: "abhinaya-kicau.firebaseapp.com",
-        databaseURL:
-          "https://abhinaya-kicau-default-rtdb.asia-southeast1.firebasedatabase.app",
+        databaseURL: "https://abhinaya-kicau-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "abhinaya-kicau",
         storageBucket: "abhinaya-kicau.firebasestorage.app",
         messagingSenderId: "391734368667",
         appId: "1:391734368667:web:798bc46c2f86dcf31e293e",
         measurementId: "G-9R67XT8BHR",
       };
-      // ============================================================
 
       // ===== PLAYLIST =====
-      // Tambahkan lagu di sini. Pastikan file MP3 ada di folder yang sama.
+      // PENTING: Nama file harus SAMA PERSIS dengan yang di folder (termasuk spasi)
+      // Lebih aman rename file jadi tanpa spasi, contoh: hindia-everything-u-are.mp3
       const playlist = [
         {
           title: "everything u are",
@@ -1002,7 +549,7 @@
         },
         {
           title: "Kita",
-          artist: "Sheila on 7 ",
+          artist: "Sheila on 7",
           src: "Kita -  Sheila on 7.mp3",
         },
         {
@@ -1015,12 +562,9 @@
           artist: "Perunggu",
           src: "33x - Perunggu.mp3",
         },
-        // Contoh tambahan (ganti / hapus sesuai file yang kamu punya):
-        // { title: "Judul Lagu 2", artist: "Artis", src: "lagu2.mp3" },
-        // { title: "Judul Lagu 3", artist: "Artis", src: "lagu3.mp3" },
       ];
 
-      // ===== Music Player Logic =====
+      // ===== Music Player =====
       const music = document.getElementById("bgMusic");
       const miniPlayer = document.getElementById("mini-player");
       const playBtn = document.getElementById("play-btn");
@@ -1042,7 +586,8 @@
         if (!playlist.length) return;
         currentTrack = (index + playlist.length) % playlist.length;
         const track = playlist[currentTrack];
-        music.src = track.src;
+        // encodeURI agar spasi di nama file tidak merusak path
+        music.src = encodeURI(track.src);
         songTitle.textContent = track.title;
         songArtist.textContent = track.artist;
         updatePlaylistUI();
@@ -1059,12 +604,12 @@
             <span class="num">${i + 1}.</span>
             <span>${t.title} — ${t.artist}</span>
           </div>
-        `,
+        `
           )
           .join("");
         playlistList.querySelectorAll(".playlist-item").forEach((el) => {
           el.addEventListener("click", () => {
-            loadTrack(parseInt(el.dataset.index));
+            loadTrack(parseInt(el.dataset.index, 10));
             if (!isPlaying) {
               isPlaying = true;
               playBtn.textContent = "⏸";
@@ -1116,8 +661,7 @@
 
       music.addEventListener("timeupdate", () => {
         if (music.duration) {
-          const pct = (music.currentTime / music.duration) * 100;
-          progressFill.style.width = pct + "%";
+          progressFill.style.width = (music.currentTime / music.duration) * 100 + "%";
         }
       });
 
@@ -1136,7 +680,6 @@
         miniPlayer.classList.toggle("collapsed");
       });
 
-      // Inisialisasi playlist
       if (playlist.length) {
         loadTrack(0);
         updatePlaylistUI();
@@ -1144,26 +687,30 @@
 
       // ===== Gallery =====
       const gallery = document.getElementById("gallery");
+
+      // Foto K1.jpeg s/d K52.jpeg
       for (let i = 1; i <= 52; i++) {
         const card = document.createElement("div");
         card.className = "photo-card photo";
         card.innerHTML = `
-        <div class="media-type">📷 Foto</div>
-        <img src="K${i}.jpeg" loading="lazy" decoding="async" alt="Foto ${i}" />
-        <div class="caption"></div>
-      `;
+          <div class="media-type">📷 Foto</div>
+          <img src="K${i}.jpeg" loading="lazy" decoding="async" alt="Foto ${i}"
+               onerror="this.style.display='none'; this.parentElement.querySelector('.caption').textContent='File tidak ditemukan';" />
+          <div class="caption"></div>
+        `;
         gallery.appendChild(card);
       }
 
-      // --- VIDEO ---
+      // Video V1.mp4 s/d V40.mp4
       for (let i = 1; i <= 40; i++) {
         const card = document.createElement("div");
         card.className = "photo-card video";
         card.innerHTML = `
-        <div class="media-type">🎥 Video</div>
-        <video src="V${i}.mp4" muted playsinline preload="metadata"></video>
-        <div class="caption"></div>
-      `;
+          <div class="media-type">🎥 Video</div>
+          <video src="V${i}.mp4" muted playsinline preload="metadata"
+                 onerror="this.style.display='none';"></video>
+          <div class="caption"></div>
+        `;
         gallery.appendChild(card);
       }
 
@@ -1171,16 +718,11 @@
       const filtersContainer = document.getElementById("filters");
       document.querySelectorAll(".filter-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
-          document
-            .querySelectorAll(".filter-btn")
-            .forEach((b) => b.classList.remove("active"));
+          document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
           const filter = btn.dataset.filter;
           document.querySelectorAll(".photo-card").forEach((card) => {
-            card.classList.toggle(
-              "hidden",
-              filter !== "all" && !card.classList.contains(filter),
-            );
+            card.classList.toggle("hidden", filter !== "all" && !card.classList.contains(filter));
           });
         });
       });
@@ -1190,20 +732,12 @@
       const ctx = canvas.getContext("2d", { alpha: true });
       let w = (canvas.width = window.innerWidth);
       let h = (canvas.height = window.innerHeight);
-      let layers = [],
-        meteors = [],
-        time = 0,
-        scrollY = 0;
+      let layers = [], meteors = [], time = 0, scrollY = 0;
 
       function initLayers() {
         const isMobile = w < 768;
         layers = [
-          {
-            count: isMobile ? 110 : 200,
-            speed: 0.012,
-            size: 1.0,
-            opacity: 0.9,
-          },
+          { count: isMobile ? 110 : 200, speed: 0.012, size: 1.0, opacity: 0.9 },
           { count: isMobile ? 70 : 140, speed: 0.035, size: 1.5, opacity: 0.7 },
           { count: isMobile ? 45 : 90, speed: 0.07, size: 2.0, opacity: 0.5 },
         ];
@@ -1220,61 +754,38 @@
           }
         });
       }
+
       function drawStars() {
         ctx.clearRect(0, 0, w, h);
         layers.forEach((layer) => {
           layer.stars.forEach((star) => {
-            const twinkle =
-              Math.sin(time * 2.8 + star.twinklePhase) * 0.3 + 0.75;
+            const twinkle = Math.sin(time * 2.8 + star.twinklePhase) * 0.3 + 0.75;
             ctx.fillStyle = `rgba(180,220,255,${star.baseOpacity * twinkle * layer.opacity})`;
             ctx.beginPath();
-            ctx.arc(
-              star.x,
-              star.y - scrollY * layer.speed * 0.6,
-              star.size,
-              0,
-              Math.PI * 2,
-            );
+            ctx.arc(star.x, star.y - scrollY * layer.speed * 0.6, star.size, 0, Math.PI * 2);
             ctx.fill();
           });
         });
       }
+
       function createMeteor() {
         if (Math.random() < 0.018) {
           const t = Math.random();
-          const size =
-            t < 0.4
-              ? 2.5 + Math.random() * 1.3
-              : t < 0.8
-                ? 3.8 + Math.random() * 1.8
-                : 5.0 + Math.random() * 2.2;
-          const length =
-            t < 0.4
-              ? 70 + Math.random() * 45
-              : t < 0.8
-                ? 110 + Math.random() * 55
-                : 150 + Math.random() * 65;
-          const speed =
-            t < 0.4
-              ? 10 + Math.random() * 3.5
-              : t < 0.8
-                ? 12 + Math.random() * 4.5
-                : 14 + Math.random() * 5.5;
+          const size = t < 0.4 ? 2.5 + Math.random() * 1.3 : t < 0.8 ? 3.8 + Math.random() * 1.8 : 5.0 + Math.random() * 2.2;
+          const length = t < 0.4 ? 70 + Math.random() * 45 : t < 0.8 ? 110 + Math.random() * 55 : 150 + Math.random() * 65;
+          const speed = t < 0.4 ? 10 + Math.random() * 3.5 : t < 0.8 ? 12 + Math.random() * 4.5 : 14 + Math.random() * 5.5;
           meteors.push({
             x: Math.random() * w * 1.3,
             y: Math.random() * h * 0.3 - 80,
-            length,
-            speed,
-            opacity: 1,
-            size,
+            length, speed, opacity: 1, size,
           });
         }
       }
+
       function drawMeteors() {
         for (let i = meteors.length - 1; i >= 0; i--) {
           const m = meteors[i];
-          const tailX = m.x - m.length * 0.75,
-            tailY = m.y - m.length * 0.55;
+          const tailX = m.x - m.length * 0.75, tailY = m.y - m.length * 0.55;
           const grad = ctx.createLinearGradient(m.x, m.y, tailX, tailY);
           grad.addColorStop(0, `rgba(255,240,200,${m.opacity})`);
           grad.addColorStop(0.4, `rgba(140,200,255,${m.opacity * 0.7})`);
@@ -1301,6 +812,7 @@
         }
         ctx.shadowBlur = 0;
       }
+
       function animate() {
         time += 0.016;
         drawStars();
@@ -1310,9 +822,7 @@
       }
 
       // ===== Lightbox =====
-      let currentIndex = 0,
-        autoSlideEnabled = false,
-        slideInterval = null;
+      let currentIndex = 0, autoSlideEnabled = false, slideInterval = null;
       const lightbox = document.getElementById("lightbox");
       const mediaContainer = document.getElementById("media-container");
       const captionEl = document.getElementById("lightbox-caption");
@@ -1340,8 +850,7 @@
             img.src = media.src;
             mediaContainer.appendChild(img);
           }
-          captionEl.textContent =
-            card.querySelector(".caption")?.textContent || "";
+          captionEl.textContent = card.querySelector(".caption")?.textContent || "";
         }
         window.goToNext = () => {
           currentIndex = (currentIndex + 1) % photos.length;
@@ -1353,9 +862,7 @@
         };
         window.toggleAutoSlide = () => {
           autoSlideEnabled = !autoSlideEnabled;
-          autoBtn.textContent = autoSlideEnabled
-            ? "Auto Slide ON"
-            : "Auto Slide OFF";
+          autoBtn.textContent = autoSlideEnabled ? "Auto Slide ON" : "Auto Slide OFF";
           autoBtn.classList.toggle("active", autoSlideEnabled);
           clearInterval(slideInterval);
           if (autoSlideEnabled) slideInterval = setInterval(goToNext, 3200);
@@ -1404,15 +911,11 @@
         h = canvas.height = window.innerHeight;
         initLayers();
       });
-      window.addEventListener("scroll", () => {
-        scrollY = window.scrollY;
-      });
+      window.addEventListener("scroll", () => { scrollY = window.scrollY; });
       initLayers();
       animate();
 
-      // =====================================================
-      // Sticky Notes — Firebase Realtime Database (shared)
-      // =====================================================
+      // ===== Sticky Notes (Firebase) =====
       let selectedColor = "yellow";
       const rotations = [-2.5, 1.8, -1.2, 2.2, -1.8, 1.5, -3, 2.8, -0.8, 1.2];
       let notesRef = null;
@@ -1420,9 +923,7 @@
 
       document.querySelectorAll(".color-opt").forEach((el) => {
         el.addEventListener("click", () => {
-          document
-            .querySelectorAll(".color-opt")
-            .forEach((c) => c.classList.remove("selected"));
+          document.querySelectorAll(".color-opt").forEach((c) => c.classList.remove("selected"));
           el.classList.add("selected");
           selectedColor = el.dataset.color;
         });
@@ -1432,16 +933,9 @@
         try {
           const d = new Date(iso);
           return (
-            d.toLocaleDateString("id-ID", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            }) +
+            d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) +
             " · " +
-            d.toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
+            d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
           );
         } catch {
           return "";
@@ -1457,104 +951,88 @@
       function renderNotes(notes) {
         const board = document.getElementById("notes-board");
         if (!notes || notes.length === 0) {
-          board.innerHTML =
-            '<div class="notes-empty">Belum ada pesan. Jadilah yang pertama menulis! ✨</div>';
+          board.innerHTML = '<div class="notes-empty">Belum ada pesan. Jadilah yang pertama menulis! ✨</div>';
           return;
         }
         board.innerHTML = notes
           .map((n, i) => {
             const rot = rotations[i % rotations.length];
             return `
-          <div class="sticky-note note-${n.color || "yellow"}" style="transform: rotate(${rot}deg)">
-            ${escapeHtml(n.message)}
-            <span class="author">— ${escapeHtml(n.author || "Anonim")}</span>
-            <span class="time">${formatTime(n.created_at)}</span>
-          </div>
-        `;
+              <div class="sticky-note note-${n.color || "yellow"}" style="transform: rotate(${rot}deg)">
+                ${escapeHtml(n.message)}
+                <span class="author">— ${escapeHtml(n.author || "Anonim")}</span>
+                <span class="time">${formatTime(n.created_at)}</span>
+              </div>
+            `;
           })
           .join("");
       }
 
       function initFirebase() {
-        const isPlaceholder =
-          !firebaseConfig.apiKey || firebaseConfig.apiKey.includes("GANTI");
+        const isPlaceholder = !firebaseConfig.apiKey || firebaseConfig.apiKey.includes("GANTI");
         if (isPlaceholder) {
           document.getElementById("firebase-warning").style.display = "block";
           document.getElementById("notes-board").innerHTML =
-            '<div class="notes-empty">Firebase belum dikonfigurasi.<br>Ikuti petunjuk di file index.html agar sticky notes bisa dibagikan.</div>';
+            '<div class="notes-empty">Firebase belum dikonfigurasi.</div>';
           return;
         }
-
         try {
           firebase.initializeApp(firebaseConfig);
           notesRef = firebase.database().ref("sticky_notes");
           firebaseReady = true;
-
           notesRef.orderByChild("created_at").on("value", (snapshot) => {
             const data = snapshot.val() || {};
-            const notes = Object.keys(data).map((key) => ({
-              id: key,
-              ...data[key],
-            }));
-            notes.sort((a, b) =>
-              (b.created_at || "").localeCompare(a.created_at || ""),
-            );
+            const notes = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
+            notes.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
             renderNotes(notes);
           });
         } catch (e) {
           console.error(e);
           document.getElementById("firebase-warning").style.display = "block";
           document.getElementById("notes-board").innerHTML =
-            '<div class="notes-empty">Gagal terhubung ke Firebase. Cek config-nya.</div>';
+            '<div class="notes-empty">Gagal terhubung ke Firebase.</div>';
         }
       }
 
-      document
-        .getElementById("submit-note")
-        .addEventListener("click", async () => {
-          const author =
-            document.getElementById("note-author").value.trim() || "Anonim";
-          const message = document.getElementById("note-message").value.trim();
-          const status = document.getElementById("form-status");
-          const btn = document.getElementById("submit-note");
+      document.getElementById("submit-note").addEventListener("click", async () => {
+        const author = document.getElementById("note-author").value.trim() || "Anonim";
+        const message = document.getElementById("note-message").value.trim();
+        const status = document.getElementById("form-status");
+        const btn = document.getElementById("submit-note");
 
-          if (!message) {
-            status.className = "form-status err";
-            status.textContent = "Pesan tidak boleh kosong ya 😊";
-            return;
-          }
-          if (!firebaseReady || !notesRef) {
-            status.className = "form-status err";
-            status.textContent = "Firebase belum siap. Isi config dulu.";
-            return;
-          }
+        if (!message) {
+          status.className = "form-status err";
+          status.textContent = "Pesan tidak boleh kosong ya 😊";
+          return;
+        }
+        if (!firebaseReady || !notesRef) {
+          status.className = "form-status err";
+          status.textContent = "Firebase belum siap.";
+          return;
+        }
 
-          btn.disabled = true;
-          status.className = "form-status";
-          status.textContent = "Menyimpan...";
+        btn.disabled = true;
+        status.className = "form-status";
+        status.textContent = "Menyimpan...";
 
-          try {
-            await notesRef.push({
-              author: author.slice(0, 40),
-              message: message.slice(0, 280),
-              color: selectedColor,
-              created_at: new Date().toISOString(),
-            });
-            document.getElementById("note-message").value = "";
-            status.className = "form-status ok";
-            status.textContent =
-              "Sticky note berhasil ditempel! Semua user bisa melihatnya 📌";
-            setTimeout(() => {
-              status.textContent = "";
-            }, 3000);
-          } catch (e) {
-            console.error(e);
-            status.className = "form-status err";
-            status.textContent =
-              "Gagal menyimpan. Cek koneksi / aturan Firebase.";
-          }
-          btn.disabled = false;
-        });
+        try {
+          await notesRef.push({
+            author: author.slice(0, 40),
+            message: message, // ← TANPA BATASAN karakter
+            color: selectedColor,
+            created_at: new Date().toISOString(),
+          });
+          document.getElementById("note-message").value = "";
+          status.className = "form-status ok";
+          status.textContent = "Sticky note berhasil ditempel! 📌";
+          setTimeout(() => { status.textContent = ""; }, 3000);
+        } catch (e) {
+          console.error(e);
+          status.className = "form-status err";
+          status.textContent = "Gagal menyimpan. Cek koneksi / aturan Firebase.";
+        }
+        btn.disabled = false;
+      });
 
       initFirebase();
     </script>
