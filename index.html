@@ -992,7 +992,6 @@
       };
       // ============================================================
 
-<<<<<<< HEAD
       // ===== PLAYLIST =====
       // Tambahkan lagu di sini. Pastikan file MP3 ada di folder yang sama.
       const playlist = [
@@ -1143,8 +1142,6 @@
         updatePlaylistUI();
       }
 
-=======
->>>>>>> 3c6bc90a2f001f6636fb2466a640ea4836585db1
       // ===== Gallery =====
       const gallery = document.getElementById("gallery");
       for (let i = 1; i <= 52; i++) {
@@ -1493,20 +1490,12 @@
           notesRef = firebase.database().ref("sticky_notes");
           firebaseReady = true;
 
-<<<<<<< HEAD
-=======
-          // Real-time listener — semua user langsung update
->>>>>>> 3c6bc90a2f001f6636fb2466a640ea4836585db1
           notesRef.orderByChild("created_at").on("value", (snapshot) => {
             const data = snapshot.val() || {};
             const notes = Object.keys(data).map((key) => ({
               id: key,
               ...data[key],
             }));
-<<<<<<< HEAD
-=======
-            // Terbaru di atas
->>>>>>> 3c6bc90a2f001f6636fb2466a640ea4836585db1
             notes.sort((a, b) =>
               (b.created_at || "").localeCompare(a.created_at || ""),
             );
